@@ -1,0 +1,9 @@
+[project]
+name = "starlette-chat-sample"
+version = "0.1.0"
+description = "A starlette-based chat sample app"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "starlette>=0.46.1",
+]
