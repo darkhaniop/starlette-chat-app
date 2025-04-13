@@ -7,14 +7,29 @@ from hypercorn.typing import Framework
 from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import JSONResponse
-from starlette.routing import Route
+from starlette.routing import Route, WebSocketRoute
+from starlette.websockets import WebSocket
+
+
+async def websocket_endpoint(websocket: WebSocket) -> None:
+    print(f"ws client: {hex(id(websocket))}")
+    await websocket.accept()
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_text(f"Message text was: {data}")
 
 
 def create_app() -> Starlette:
     async def homepage(_request: Request) -> JSONResponse:
         return JSONResponse({"result": "Hello World!"})
 
-    app = Starlette(debug=True, routes=[Route("/", homepage)])
+    app = Starlette(
+        debug=True,
+        routes=[
+            Route("/", homepage),
+            WebSocketRoute("/ws", websocket_endpoint),
+        ],
+    )
     return app
 
 
