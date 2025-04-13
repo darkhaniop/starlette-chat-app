@@ -5,5 +5,6 @@ description = "A starlette-based chat sample app"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "hypercorn>=0.17.3",
     "starlette>=0.46.1",
 ]
