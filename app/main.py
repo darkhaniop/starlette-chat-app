@@ -11,9 +11,31 @@ from starlette.routing import Route, WebSocketRoute
 from starlette.websockets import WebSocket
 
 
+class Clients:
+    _clients: list[WebSocket] = []
+
+    @classmethod
+    def add_client(cls, ws: WebSocket) -> None:
+        cls._clients.append(ws)
+
+    @classmethod
+    def get_clients(cls) -> list[WebSocket]:
+        return cls._clients
+
+
+def print_clients(clients: list[WebSocket]) -> str:
+    res = ", ".join([hex(id(client)) for client in clients])
+    return res
+
+
 async def websocket_endpoint(websocket: WebSocket) -> None:
-    print(f"ws client: {hex(id(websocket))}")
+    new_client = hex(id(websocket))
+    print(f"ws client: {new_client}")
     await websocket.accept()
+    await websocket.send_text(
+        f"Welcome {new_client}. Other clients: {print_clients(Clients.get_clients())}"
+    )
+    Clients.add_client(websocket)
     while True:
         data = await websocket.receive_text()
         await websocket.send_text(f"Message text was: {data}")
