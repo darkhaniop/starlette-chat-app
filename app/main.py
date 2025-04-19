@@ -8,7 +8,7 @@ from starlette.applications import Starlette
 from starlette.requests import Request
 from starlette.responses import JSONResponse, HTMLResponse
 from starlette.routing import Route, WebSocketRoute
-from starlette.websockets import WebSocket
+from starlette.websockets import WebSocket, WebSocketDisconnect
 
 
 class Clients:
@@ -21,6 +21,16 @@ class Clients:
     @classmethod
     def get_clients(cls) -> list[WebSocket]:
         return cls._clients
+
+    @classmethod
+    async def broadcast_msg(cls, msg: str) -> None:
+        for client in cls._clients:
+            try:
+                await client.send_text(msg)
+            except asyncio.CancelledError:
+                pass
+            except Exception:
+                pass
 
 
 def print_clients(clients: list[WebSocket]) -> str:
@@ -35,10 +45,18 @@ async def websocket_endpoint(websocket: WebSocket) -> None:
     await websocket.send_text(
         f"Welcome {new_client}. Other clients: {print_clients(Clients.get_clients())}"
     )
+    await Clients.broadcast_msg(f"Client {hex(id(websocket))} connected")
     Clients.add_client(websocket)
-    while True:
-        data = await websocket.receive_text()
-        await websocket.send_text(f"Message text was: {data}")
+    try:
+        while True:
+            data = await websocket.receive_text()
+            # await websocket.send_text(f"Message text was: {data}")
+            await Clients.broadcast_msg(f"Message from {hex(id(websocket))}: {data}")
+    except WebSocketDisconnect:
+        pass
+    except Exception:
+        pass
+    await Clients.broadcast_msg(f"Client {hex(id(websocket))} disconnected")
 
 
 html = """
