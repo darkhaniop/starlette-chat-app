@@ -11,3 +11,4 @@ python app/main.py
 ```
 
 In a web-browser, navigate to [localhost:8080/chat](http://localhost:8080/chat).
+Messages are received by all connected clients.
