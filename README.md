@@ -4,7 +4,7 @@ The purpose of this project is to check a minimal Starlette-based chat app funct
 It also verifies the full-duplex communication capability over WebSockets.
 
 > [!NOTE]
-> Not meant for production!
+> This is only a basic example of a Starlette app, and not meant to be deployed for production.
 
 ## Usage
 
